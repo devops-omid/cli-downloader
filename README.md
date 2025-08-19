@@ -10,6 +10,7 @@ This is a powerful Bash script for downloading files from password-protected web
 * **Batch Downloading**: Accepts either a single URL or a `.txt` file with multiple URLs (one per line) as input.
 * **Smart File Checking**: Skips files that have already been completely downloaded.
 * **Bandwidth Limiting**: You can set a maximum download speed in the configuration file to prevent the script from using all your bandwidth.
+* **Logging**: Optionally creates a log file to record all successful downloads, skips, and errors with timestamps.
 * **Secure Configuration**: Keeps your username, password, and other settings in a separate `.cli-downloader.conf` file.
 * **Password Prompt Fallback**: For added security, you can leave the password field blank in the config file, and the script will securely prompt you for it each time it runs.
 * **Cross-Platform**: Compatible with macOS and Linux distributions like Raspbian OS.
