@@ -35,6 +35,9 @@ PASSWORD="your_password"
 
 # Number of parallel connections to use for each download.
 CONNECTIONS=8
+
+# Maximum download speed. Use '0' for no limit. (e.g., 500K, 1M)
+MAX_DOWNLOAD_SPEED="0"
 EOF
     echo "--------------------------------------------------------------------"
     exit 1
@@ -85,27 +88,32 @@ download_file() {
   fi
   # -------------------------------------
 
-  # Start the download process using aria2c.
-  echo "Starting or resuming download for: $FILENAME"
-  echo "Using URL for aria2c: '$URL'"
-
-  # Use aria2c to download the file.
-  # It automatically handles resuming and uses a temporary file (.aria2)
-  # -c, --continue=true: Resumes interrupted downloads.
-  # -x: Specifies the number of connections.
-  # -d: Sets the destination directory.
-  # -o: Sets the output filename.
-  # --http-user/--http-passwd: Sets credentials for authentication.
-  # --log-level=warn: Suppresses non-error messages but keeps the progress meter.
-  aria2c \
+  # --- Build aria2c command ---
+  # Start with the base command and options in an array for robustness.
+  local ARIA2_CMD=(aria2c \
     --continue=true \
     --http-user="$USERNAME" \
     --http-passwd="$PASSWORD" \
     -x "$CONNECTIONS" \
     -d "$DEST_FOLDER" \
     -o "$FILENAME" \
-    --log-level=warn \
-    "$URL"
+    --log-level=warn)
+
+  # Conditionally add the download speed limit if it's set and not "0".
+  if [[ -n "$MAX_DOWNLOAD_SPEED" && "$MAX_DOWNLOAD_SPEED" != "0" ]]; then
+    echo "Limiting download speed to: $MAX_DOWNLOAD_SPEED"
+    ARIA2_CMD+=(--max-download-limit="$MAX_DOWNLOAD_SPEED")
+  fi
+
+  # Add the URL as the final argument to the command array.
+  ARIA2_CMD+=("$URL")
+  # --------------------------
+
+  # Start the download process.
+  echo "Starting or resuming download for: $FILENAME"
+
+  # Execute the command. Using an array handles spaces and special characters safely.
+  "${ARIA2_CMD[@]}"
 
   # Check the exit code of the aria2c command.
   if [ $? -eq 0 ]; then
