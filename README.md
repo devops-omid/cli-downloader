@@ -4,12 +4,14 @@ This is a powerful Bash script for downloading files from password-protected web
 
 ## Features
 
+* **Interactive Setup**: If no configuration file is found, the script will guide you through creating one the first time it runs.
 * **Accelerated Downloads**: Uses `aria2c` to open multiple connections for a single file, significantly increasing download speed.
 * **Automatic Resume**: If a download is interrupted, it will automatically resume from where it left off the next time you run the script.
 * **Batch Downloading**: Accepts either a single URL or a `.txt` file with multiple URLs (one per line) as input.
 * **Smart File Checking**: Skips files that have already been completely downloaded.
 * **Bandwidth Limiting**: You can set a maximum download speed in the configuration file to prevent the script from using all your bandwidth.
-* **Secure Configuration**: Keeps your username, password, and other settings in a separate `.cli-downloader.conf` file to avoid exposing sensitive information directly in the script.
+* **Secure Configuration**: Keeps your username, password, and other settings in a separate `.cli-downloader.conf` file.
+* **Password Prompt Fallback**: For added security, you can leave the password field blank in the config file, and the script will securely prompt you for it each time it runs.
 * **Cross-Platform**: Compatible with macOS and Linux distributions like Raspbian OS.
 
 ## Requirements
@@ -22,25 +24,9 @@ This is a powerful Bash script for downloading files from password-protected web
     * **On macOS (with Homebrew):** `brew install aria2`
     * **On Raspbian/Debian/Ubuntu:** `sudo apt update && sudo apt install aria2`
 
-2.  **Create the Configuration File**: Create a file named `.cli-downloader.conf` in either your home directory (`~/`) or in the same directory as the `cli-downloader.sh` script. A sample configuration is below:
-
-    ```ini
-    # --- Download Configuration ---
-    # Destination folder for your downloads. No trailing slash.
-    DEST_FOLDER="/path/to/your/downloads"
-
-    # Your username for the protected website.
-    USERNAME="your_username"
-
-    # Your password for the protected website.
-    PASSWORD="your_password"
-
-    # Number of parallel connections to use for each download.
-    CONNECTIONS=8
-
-    # Maximum download speed. Use '0' for no limit. (e.g., 500K, 1M)
-    MAX_DOWNLOAD_SPEED="0"
-    ```
+2.  **Configure the Script**:
+    * Run the script once: `./cli-downloader.sh`.
+    * It will detect that there's no configuration and will launch the interactive setup to create the `.cli-downloader.conf` file for you.
 
 3.  **Make the Script Executable**: Open your terminal and run the following command to give the script permission to execute:
     ```bash

@@ -15,37 +15,57 @@ elif [ -f "$SCRIPT_CONFIG_FILE" ]; then
     CONFIG_FILE="$SCRIPT_CONFIG_FILE"
 fi
 
-# If no config file was found in either location, show an error and instructions.
+# --- Interactive Setup ---
+# If no config file was found, guide the user through creating one.
 if [ -z "$CONFIG_FILE" ]; then
-    echo "Error: Configuration file not found!"
-    echo "Please create a file named '.cli-downloader.conf' in your home directory (~/) or in the script's directory."
-    echo ""
-    echo "Add the following content to the file, replacing the placeholder values:"
-    echo "--------------------------------------------------------------------"
-    cat << EOF
+    echo "Configuration file not found. Let's create one!"
+    
+    # Set the default location to the script's directory.
+    CONFIG_FILE="$SCRIPT_CONFIG_FILE"
+    echo "The new config file will be saved at: $CONFIG_FILE"
+    
+    # Ask for the destination folder.
+    read -p "Enter the destination folder for your downloads: " DEST_FOLDER
+    
+    # Ask for the username.
+    read -p "Enter your username for the protected website: " USERNAME
+    
+    # Ask for the password (optional, can be left blank).
+    echo "Enter your password (optional, press Enter to be prompted each time): "
+    read -s PASSWORD_INPUT # -s flag hides the input
+    
+    # Ask for the number of connections.
+    read -p "Enter the number of parallel connections (default: 8): " CONNECTIONS
+    CONNECTIONS=${CONNECTIONS:-8} # Default to 8 if empty
+    
+    # Ask for the max download speed.
+    read -p "Enter the max download speed (e.g., 500K, 1M, or 0 for no limit) (default: 0): " MAX_DOWNLOAD_SPEED
+    MAX_DOWNLOAD_SPEED=${MAX_DOWNLOAD_SPEED:-"0"} # Default to "0" if empty
+    
+    # Create the configuration file.
+    cat > "$CONFIG_FILE" << EOF
 # --- Download Configuration ---
-# Destination folder for your downloads. No trailing slash.
-DEST_FOLDER="/path/to/your/downloads"
-
-# Your username for the protected website.
-USERNAME="your_username"
-
-# Your password for the protected website.
-PASSWORD="your_password"
-
-# Number of parallel connections to use for each download.
-CONNECTIONS=8
-
-# Maximum download speed. Use '0' for no limit. (e.g., 500K, 1M)
-MAX_DOWNLOAD_SPEED="0"
+DEST_FOLDER="$DEST_FOLDER"
+USERNAME="$USERNAME"
+PASSWORD="$PASSWORD_INPUT"
+CONNECTIONS=$CONNECTIONS
+MAX_DOWNLOAD_SPEED="$MAX_DOWNLOAD_SPEED"
 EOF
-    echo "--------------------------------------------------------------------"
-    exit 1
+    echo -e "\nConfiguration file created successfully!"
 fi
 
 # Load the configuration variables from the found file.
 source "$CONFIG_FILE"
 # ---------------------
+
+# --- Password Prompt Fallback ---
+# If the PASSWORD variable is empty after sourcing the config, prompt for it securely.
+if [ -z "$PASSWORD" ]; then
+    echo -n "Enter password for user '$USERNAME': "
+    read -s PASSWORD # -s flag hides the input
+    echo "" # Add a newline after the hidden input
+fi
+# ------------------------------
 
 # --- Dependency Check ---
 # Check if aria2c is installed before proceeding.
